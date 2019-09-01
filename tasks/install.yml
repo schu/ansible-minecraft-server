@@ -1,0 +1,32 @@
+---
+- name: create 'minecraft' group
+  group:
+    name: minecraft
+    state: present
+
+- name: create 'minecraft' user
+  user:
+    name: minecraft
+    group: minecraft
+    password: '*'
+    password_lock: true
+    create_home: false
+    home: /opt/minecraft
+    system: true
+    shell: /bin/bash
+
+- name: create 'minecraft' home dir
+  file:
+    path: /opt/minecraft
+    state: directory
+    owner: minecraft
+    group: minecraft
+    mode: 0755
+
+- name: copy systemd service
+  copy:
+    src: minecraft@.service
+    dest: /etc/systemd/system/minecraft@.service
+    owner: root
+    group: root
+    mode: 0644

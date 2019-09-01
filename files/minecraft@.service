@@ -1,0 +1,37 @@
+[Unit]
+Description=Minecraft Server %i
+After=network.target
+
+[Service]
+Type=forking
+
+User=minecraft
+Group=minecraft
+
+PrivateUsers=true
+
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+NoNewPrivileges=yes
+
+WorkingDirectory=/opt/minecraft/%i
+
+ExecStart=/usr/bin/tmux new-session -d -s minecraft-%i /usr/bin/java -server -Xms512M -Xmx2048M -jar minecraft-server.jar nogui
+
+ExecReload=/usr/bin/tmux send-keys -t minecraft-%i.0 reload C-m
+
+ExecStop=/usr/bin/tmux send-keys -t minecraft-%i.0 'say SERVER SHUTTING DOWN in 10s' C-m
+ExecStop=/bin/sleep 10
+ExecStop=/usr/bin/tmux send-keys -t minecraft-%i.0 'save-all' C-m 'stop' C-m
+ExecStop=/bin/sleep 2
+ExecStop=/usr/bin/tmux kill-session -t minecraft-%i
+
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target
